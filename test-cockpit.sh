@@ -5,6 +5,9 @@ image="${1:?Usage: test-cockpit.sh IMAGE}"
 temporary_dir="$(mktemp -d)"
 container="pi-coder-cockpit-test-$$"
 cleanup() {
+    if [[ $? != 0 ]]; then
+        docker logs "$container" 2>/dev/null || true
+    fi
     docker rm --force "$container" >/dev/null 2>&1 || true
     rm -f "$temporary_dir/password" "$temporary_dir/auth" "$temporary_dir/cookies"
     rmdir "$temporary_dir"
@@ -44,7 +47,7 @@ fi
 
 curl --fail --silent --show-error \
     --config "$temporary_dir/auth" \
-    --cookie-jar "$temporary_dir/cookies" \
+    --dump-header "$temporary_dir/cookies" \
     --header 'Host: pi.ergoshear.dev' \
     --header 'Origin: https://pi.ergoshear.dev' \
     --header 'X-Forwarded-Proto: https' \

@@ -61,4 +61,6 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-        run: bash test-cockpit.sh "$IMAGE"
+        run: |
+          python3 -m pip install websocket-client==1.9.0
+          bash test-cockpit.sh "$IMAGE"

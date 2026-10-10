@@ -1,24 +1,38 @@
-import http.cookiejar
+from contextlib import closing
+from http.cookies import SimpleCookie
 import json
+from pathlib import Path
 import sys
 
 import websocket
 
-cookies = http.cookiejar.MozillaCookieJar(sys.argv[2])
-cookies.load(ignore_discard=True, ignore_expires=True)
-cookie_header = "; ".join(f"{cookie.name}={cookie.value}" for cookie in cookies)
-with websocket.create_connection(
-    sys.argv[1].replace("http://", "ws://") + "/cockpit/socket",
+cookies = SimpleCookie()
+for line in Path(sys.argv[2]).read_text().splitlines():
+    if line.lower().startswith("set-cookie:"):
+        cookies.load(line.split(":", 1)[1].strip())
+cookie_header = "; ".join(f"{key}={cookie.value}" for key, cookie in cookies.items())
+with closing(websocket.create_connection(
+    sys.argv[1].replace("http://", "ws://").replace("https://", "wss://") + "/cockpit/socket",
     cookie=cookie_header,
     host="pi.ergoshear.dev",
     origin="https://pi.ergoshear.dev",
     header=["X-Forwarded-Proto: https"],
     subprotocols=["cockpit1"],
     timeout=15,
-) as connection:
+)) as connection:
     init = connection.recv()
-    assert json.loads(init.split("\n", 1)[1])["command"] == "init"
+    initial = json.loads(init.split("\n", 1)[1])
+    assert initial["command"] == "init"
+    assert not initial.get("problem"), initial.get("problem")
     connection.send('\n{"command":"init","version":1}')
+    connection.send("\n" + json.dumps({
+        "command": "open", "channel": "system-bus",
+        "payload": "dbus-json3", "bus": "system", "name": "org.freedesktop.systemd1",
+    }))
+    connection.send("\n" + json.dumps({
+        "command": "open", "channel": "session",
+        "payload": "session-control",
+    }))
     connection.send("\n" + json.dumps({
         "command": "open",
         "channel": "test",
@@ -34,7 +48,10 @@ with websocket.create_connection(
             output += payload
         elif not channel:
             control = json.loads(payload)
+            print("Cockpit control:", control.get("command"), control.get("problem"), control.get("message"))
             if control["command"] == "close":
+                if control.get("channel") == "system-bus":
+                    continue
                 assert control.get("channel") == "test", control
                 assert not control.get("problem"), control
                 assert control.get("exit-status") == 0, control

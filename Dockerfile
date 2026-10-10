@@ -9,6 +9,7 @@ RUN dnf update -y && \
         curl \
         ca-certificates \
         cockpit \
+        dbus-daemon \
         openssh-server \
         sudo \
         supervisor && \
@@ -28,6 +29,7 @@ RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent
 
 COPY cockpit.conf /etc/cockpit/cockpit.conf
 COPY supervisord.conf /etc/supervisord.conf
+COPY sshd.pam /etc/pam.d/sshd
 COPY entrypoint.sh /usr/local/bin/pi-coder-entrypoint
 RUN chmod 0755 /usr/local/bin/pi-coder-entrypoint
 
