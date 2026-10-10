@@ -3,7 +3,7 @@
   "defaultModel": "/models/gpt-oss-20b-MXFP4.gguf",
   "defaultThinkingLevel": "off",
   "compaction": {
-    "reserveTokens": 2048,
+    "reserveTokens": 8192,
     "keepRecentTokens": 2048
   }
 }
