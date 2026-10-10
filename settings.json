@@ -1,0 +1,9 @@
+{
+  "defaultProvider": "olla",
+  "defaultModel": "llama3",
+  "defaultThinkingLevel": "off",
+  "compaction": {
+    "reserveTokens": 2048,
+    "keepRecentTokens": 2048
+  }
+}

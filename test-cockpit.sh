@@ -73,6 +73,23 @@ docker exec "$container" systemctl is-active cockpit.socket sshd.service dbus.se
     "$base_url/cockpit/login")" == 401 ]]
 [[ "$(docker exec --user pi "$container" sudo -n id -u)" == 0 ]]
 docker exec --user pi "$container" pi --version
+for account in pi root; do
+    docker exec --user "$account" "$container" node -e '
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const agentDirectory = path.join(os.homedir(), ".pi", "agent");
+const models = JSON.parse(fs.readFileSync(path.join(agentDirectory, "models.json"), "utf8"));
+const settings = JSON.parse(fs.readFileSync(path.join(agentDirectory, "settings.json"), "utf8"));
+assert.equal(models.providers.olla.baseUrl, "https://olla.ergoshear.dev/olla/openai/v1");
+assert.equal(models.providers.olla.api, "openai-completions");
+assert.equal(settings.defaultProvider, "olla");
+assert.equal(settings.defaultModel, "llama3");
+assert.ok(models.providers.olla.models.some(model => model.id === settings.defaultModel));
+assert.ok(settings.compaction.reserveTokens < models.providers.olla.models[0].contextWindow);
+'
+done
 docker exec "$container" python3 -c '
 from pathlib import Path
 listeners = [

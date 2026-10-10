@@ -15,6 +15,9 @@ RUN dnf update -y && \
         systemd && \
     dnf clean all
 
+COPY models.json settings.json /etc/skel/.pi/agent/
+COPY models.json settings.json /root/.pi/agent/
+
 RUN useradd --create-home --shell /bin/bash pi && \
     install -d -o pi -g pi /workspace && \
     printf 'pi ALL=(ALL) NOPASSWD: ALL\n' > /etc/sudoers.d/pi && \

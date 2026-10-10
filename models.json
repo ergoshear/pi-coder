@@ -1,0 +1,25 @@
+{
+  "providers": {
+    "olla": {
+      "baseUrl": "https://olla.ergoshear.dev/olla/openai/v1",
+      "api": "openai-completions",
+      "apiKey": "olla",
+      "models": [
+        {
+          "id": "llama3",
+          "name": "Llama 3 (Olla)",
+          "reasoning": false,
+          "input": ["text"],
+          "contextWindow": 8192,
+          "maxTokens": 2048,
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          }
+        }
+      ]
+    }
+  }
+}
