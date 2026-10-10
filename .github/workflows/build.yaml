@@ -62,5 +62,11 @@ jobs:
         env:
           IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         run: |
+          # The runner's host profile blocks PAM's setuid helper inside the test container.
+          profile=/etc/apparmor.d/unix-chkpwd
+          if sudo test -f "$profile"; then
+            sudo apparmor_parser -R "$profile"
+            trap 'sudo apparmor_parser -r "$profile"' EXIT
+          fi
           python3 -m pip install websocket-client==1.9.0
           bash test-cockpit.sh "$IMAGE"
