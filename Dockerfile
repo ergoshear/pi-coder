@@ -1,11 +1,14 @@
 FROM fedora:44
 
-# Install Node.js (v22+ required), npm, Git, and system utilities
+# Install development tools, Node.js (v22+ required), and system utilities
 RUN dnf update -y && \
+    dnf group install -y development-tools && \
     dnf install -y \
         nodejs \
         npm \
+        ripgrep \
         git \
+        gh \
         curl \
         ca-certificates \
         cockpit \
@@ -29,6 +32,9 @@ WORKDIR /workspace
 
 # Install Pi Coding Agent globally
 RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+
+# Install Superpowers for the pi account.
+RUN su - pi -c 'pi install git:github.com/obra/superpowers'
 
 COPY cockpit.conf /etc/cockpit/cockpit.conf
 COPY sshd.conf /etc/ssh/sshd_config.d/00-pi-coder.conf
