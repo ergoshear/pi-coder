@@ -26,7 +26,7 @@ printf '%s' "$password" > "$temporary_dir/password"
 printf 'user = "pi:%s"\n' "$password" > "$temporary_dir/auth"
 unset password
 docker run --detach --name "$container" \
-    --privileged --cgroupns=host \
+    --privileged --security-opt apparmor=unconfined --cgroupns=host \
     --tmpfs /run --tmpfs /tmp \
     --volume /sys/fs/cgroup:/sys/fs/cgroup:rw \
     --publish 127.0.0.1::9090 \
