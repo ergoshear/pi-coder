@@ -40,6 +40,7 @@ with closing(websocket.create_connection(
         "spawn": ["/bin/sh", "-c", "printf cockpit-terminal-ok"],
     }))
     output = ""
+    ready_channels = set()
     while True:
         frame = connection.recv()
         assert frame, "Cockpit WebSocket disconnected"
@@ -48,13 +49,13 @@ with closing(websocket.create_connection(
             output += payload
         elif not channel:
             control = json.loads(payload)
-            print("Cockpit control:", control.get("command"), control.get("problem"), control.get("message"))
+            if control["command"] == "ready":
+                ready_channels.add(control["channel"])
             if control["command"] == "close":
-                if control.get("channel") == "system-bus":
-                    continue
                 assert control.get("channel") == "test", control
                 assert not control.get("problem"), control
                 assert control.get("exit-status") == 0, control
                 break
     assert output == "cockpit-terminal-ok", output
-print("Authenticated Cockpit WebSocket terminal command passed.")
+    assert {"system-bus", "session", "test"} <= ready_channels, ready_channels
+print("Authenticated Cockpit system-bus, session-control, and terminal checks passed.")
