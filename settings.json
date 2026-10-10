@@ -1,6 +1,6 @@
 {
   "defaultProvider": "olla",
-  "defaultModel": "openai-gpt-20b",
+  "defaultModel": "/models/gpt-oss-20b-MXFP4.gguf",
   "defaultThinkingLevel": "off",
   "compaction": {
     "reserveTokens": 2048,
