@@ -32,6 +32,8 @@ still required at the public ingress.
 After logging in as `pi`, open Cockpit's Terminal and run `cd /workspace`
 then `pi`. Terminal files are currently ephemeral and are lost when the pod
 is replaced.
+The image includes Fedora's Development Tools group, `ripgrep`, GitHub CLI,
+Git, and curl. It also installs the Superpowers extension for the `pi` account.
 
 Explicit commands bypass the web startup for CLI use, for example:
 
