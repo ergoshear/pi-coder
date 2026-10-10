@@ -6,8 +6,8 @@
       "apiKey": "olla",
       "models": [
         {
-          "id": "llama3",
-          "name": "Llama 3 (Olla)",
+          "id": "/models/gpt-oss-20b-MXFP4.gguf",
+          "name": "GPT-OSS 20B (Olla)",
           "reasoning": false,
           "input": ["text"],
           "contextWindow": 8192,

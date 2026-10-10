@@ -42,12 +42,15 @@ docker run --rm -it ghcr.io/ergoshear/pi-coder:latest pi
 ## Olla Provider
 
 The image installs `models.json` and `settings.json` under `~/.pi/agent/`
-for both `pi` and root. New sessions default to provider `olla`, model `llama3`,
-using `https://olla.ergoshear.dev/olla/openai/v1` and a placeholder API key.
-Edit these files to select another Olla model or change the endpoint. The
-Llama 3 entry assumes an 8192-token context window with 2048 output tokens;
-adjust these limits to match the model and context configured on your backends.
-Coding-agent tool use requires a model/backend that supports tool calls.
+for both `pi` and root. New sessions default to provider `olla`, model
+`/models/gpt-oss-20b-MXFP4.gguf`, using
+`https://olla.ergoshear.dev/olla/openai/v1` and a placeholder API key. Check
+available model IDs at `https://olla.ergoshear.dev/olla/openai/v1/models`;
+the base URL itself is not an API route. Edit these files to select another
+Olla model or change the endpoint. The model entry assumes an 8192-token
+context window with 2048 output tokens; adjust these limits to match the model
+and context configured on your backends. Coding-agent tool use requires a
+model/backend that supports tool calls.
 
 Rebuild and publish the image, then restart the deployment to apply these
 defaults. Existing mounted home directories or saved sessions can override them.
