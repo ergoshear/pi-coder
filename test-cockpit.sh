@@ -29,7 +29,7 @@ address="$(docker port "$container" 9090/tcp)"
 base_url="http://$address"
 
 ready=false
-for attempt in {1..30}; do
+for _attempt in {1..30}; do
     if curl --fail --silent "$base_url/ping" >/dev/null; then
         ready=true
         break
@@ -55,6 +55,12 @@ import sys
 response = json.load(sys.stdin)
 assert isinstance(response["csrf-token"], str) and response["csrf-token"]
 '
+[[ "$(curl --silent --output /dev/null --write-out '%{http_code}' \
+    --user pi:incorrect-password \
+    --header 'Host: pi.ergoshear.dev' \
+    --header 'Origin: https://pi.ergoshear.dev' \
+    --header 'X-Forwarded-Proto: https' \
+    "$base_url/cockpit/login")" == 401 ]]
 [[ "$(docker exec --user pi "$container" sudo -n id -u)" == 0 ]]
 docker exec --user pi "$container" pi --version
 docker exec "$container" python3 -c '

@@ -25,3 +25,9 @@ Explicit commands bypass the web startup for CLI use, for example:
 ```sh
 docker run --rm -it ghcr.io/ergoshear/pi-coder:latest pi
 ```
+
+Validate a built image with `bash test-cockpit.sh IMAGE`. This checks that
+missing login credentials fail startup, correct credentials authenticate,
+incorrect credentials are rejected, SSH is loopback-only, Pi is installed,
+and `pi` can run `sudo -n` without a password. Pull requests run this smoke
+test on the built image.
