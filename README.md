@@ -1,16 +1,21 @@
 # pi-coder
 
 Fedora 44 with the Pi coding agent and a Cockpit browser terminal. Cockpit
-authenticates the local `pi` account through an SSH server bound only to
-loopback; the container does not need systemd or privileged mode. The `pi`
-account has passwordless sudo inside the container. Root Cockpit logins and
-remote-host logins are disabled.
+is installed with `dnf install cockpit` and enabled with
+`systemctl enable cockpit.socket`, following the
+[Fedora setup guide](https://cockpit-project.org/running#fedora).
+The entrypoint starts systemd as PID 1, and Cockpit's stock socket-activated
+service authenticates the local `pi` account. The `pi` account has passwordless
+sudo inside the container. Root Cockpit logins and remote-host logins are disabled.
 
-A supervised, container-local system D-Bus supports Cockpit's session UI.
-SSH uses a container-specific PAM stack with Unix password/account checks,
-without host login-session modules that require systemd or audit privileges.
-Cockpit does not administer the Kubernetes node or provide host systemd
-services; use its Terminal for the Pi workspace.
+Systemd manages Cockpit, the container-local system D-Bus, and an SSH server
+bound only to loopback. SSH retains its container-specific Unix PAM stack.
+Use Cockpit's Terminal for the Pi workspace.
+
+The systemd runtime requires a privileged container, writable cgroup access,
+and writable temporary filesystems at `/run` and `/tmp`. The GitOps deployment
+mounts the node's `/sys/fs/cgroup` read-write. This substantially weakens node
+isolation: deploy only trusted workloads on a node where this access is acceptable.
 
 The default entrypoint starts Cockpit on port 9090. Mount a nonempty login
 password at `/run/secrets/pi-coder/password`; it is applied at startup and
@@ -21,6 +26,8 @@ TLS terminates at the ingress for `https://pi.ergoshear.dev`. Do not expose
 the unencrypted container port directly to untrusted networks. Cockpit is
 configured to trust the ingress's `X-Forwarded-Proto` header and accepts
 WebSocket connections from that HTTPS origin.
+`AllowUnencrypted` permits the ingress-to-container HTTP connection; TLS is
+still required at the public ingress.
 
 After logging in as `pi`, open Cockpit's Terminal and run `cd /workspace`
 then `pi`. Terminal files are currently ephemeral and are lost when the pod
@@ -35,7 +42,9 @@ docker run --rm -it ghcr.io/ergoshear/pi-coder:latest pi
 Validate a built image with `bash test-cockpit.sh IMAGE`. This checks that
 missing login credentials fail startup, correct credentials authenticate,
 incorrect credentials are rejected, SSH is loopback-only, Pi is installed,
-and `pi` can run `sudo -n` without a password. It also opens authenticated
+and `pi` can run `sudo -n` without a password. The test uses privileged Docker
+with the same writable host cgroup mount and verifies systemd socket activation.
+It also opens authenticated
 WebSocket system-bus and session-control channels and executes a terminal
-command, catching failures after HTTP login. Pull requests run this smoke
+command for 30 seconds, catching short-lived failures after HTTP login. Pull requests run this smoke
 test on the built image.

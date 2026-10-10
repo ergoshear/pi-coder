@@ -21,4 +21,4 @@ ssh-keygen -A
 install -d -m 0755 /run/dbus
 dbus-uuidgen --ensure=/etc/machine-id
 
-exec /usr/bin/supervisord -c /etc/supervisord.conf
+exec /usr/sbin/init

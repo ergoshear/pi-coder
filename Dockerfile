@@ -12,7 +12,7 @@ RUN dnf update -y && \
         dbus-daemon \
         openssh-server \
         sudo \
-        supervisor && \
+        systemd && \
     dnf clean all
 
 RUN useradd --create-home --shell /bin/bash pi && \
@@ -28,10 +28,14 @@ WORKDIR /workspace
 RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent
 
 COPY cockpit.conf /etc/cockpit/cockpit.conf
-COPY supervisord.conf /etc/supervisord.conf
+COPY sshd.conf /etc/ssh/sshd_config.d/00-pi-coder.conf
 COPY sshd.pam /etc/pam.d/sshd
 COPY entrypoint.sh /usr/local/bin/pi-coder-entrypoint
-RUN chmod 0755 /usr/local/bin/pi-coder-entrypoint
+RUN chmod 0755 /usr/local/bin/pi-coder-entrypoint && \
+    systemctl set-default multi-user.target && \
+    systemctl enable cockpit.socket sshd.service
 
+ENV container=docker
+STOPSIGNAL SIGRTMIN+3
 EXPOSE 9090
 ENTRYPOINT ["/usr/local/bin/pi-coder-entrypoint"]

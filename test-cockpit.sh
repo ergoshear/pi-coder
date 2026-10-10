@@ -7,6 +7,7 @@ container="pi-coder-cockpit-test-$$"
 cleanup() {
     if [[ $? != 0 ]]; then
         docker logs "$container" 2>/dev/null || true
+        docker exec "$container" journalctl --no-pager --lines=100 2>/dev/null || true
     fi
     docker rm --force "$container" >/dev/null 2>&1 || true
     rm -f "$temporary_dir/password" "$temporary_dir/auth" "$temporary_dir/cookies"
@@ -25,6 +26,9 @@ printf '%s' "$password" > "$temporary_dir/password"
 printf 'user = "pi:%s"\n' "$password" > "$temporary_dir/auth"
 unset password
 docker run --detach --name "$container" \
+    --privileged --cgroupns=host \
+    --tmpfs /run --tmpfs /tmp \
+    --volume /sys/fs/cgroup:/sys/fs/cgroup:rw \
     --publish 127.0.0.1::9090 \
     --mount "type=bind,src=$temporary_dir/password,dst=/run/secrets/pi-coder/password,readonly" \
     "$image" >/dev/null
@@ -32,7 +36,7 @@ address="$(docker port "$container" 9090/tcp)"
 base_url="http://$address"
 
 ready=false
-for _attempt in {1..30}; do
+for _attempt in {1..60}; do
     if curl --fail --silent "$base_url/ping" >/dev/null; then
         ready=true
         break
@@ -59,6 +63,8 @@ response = json.load(sys.stdin)
 assert isinstance(response["csrf-token"], str) and response["csrf-token"]
 '
 python3 "$(dirname "$0")/test-session.py" "$base_url" "$temporary_dir/cookies"
+[[ "$(docker exec "$container" cat /proc/1/comm)" == systemd ]]
+docker exec "$container" systemctl is-active cockpit.socket sshd.service dbus.service
 [[ "$(curl --silent --output /dev/null --write-out '%{http_code}' \
     --user pi:incorrect-password \
     --header 'Host: pi.ergoshear.dev' \
@@ -76,4 +82,4 @@ listeners = [
 ]
 assert listeners == ["0100007F:0016"], listeners
 '
-printf 'Cockpit login, loopback SSH, Pi CLI, and passwordless sudo checks passed.\n'
+printf 'Systemd socket activation, Cockpit login, loopback SSH, Pi CLI, and passwordless sudo checks passed.\n'

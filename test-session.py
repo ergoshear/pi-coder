@@ -37,7 +37,11 @@ with closing(websocket.create_connection(
         "command": "open",
         "channel": "test",
         "payload": "stream",
-        "spawn": ["/bin/sh", "-c", "printf cockpit-terminal-ok"],
+        "spawn": [
+            "/bin/sh", "-c",
+            "for attempt in 1 2 3 4 5 6; do sleep 5; "
+            "printf cockpit-terminal-heartbeat; done; printf cockpit-terminal-ok",
+        ],
     }))
     output = ""
     ready_channels = set()
@@ -56,6 +60,6 @@ with closing(websocket.create_connection(
                 assert not control.get("problem"), control
                 assert control.get("exit-status") == 0, control
                 break
-    assert output == "cockpit-terminal-ok", output
+    assert output == "cockpit-terminal-heartbeat" * 6 + "cockpit-terminal-ok", output
     assert {"system-bus", "session", "test"} <= ready_channels, ready_channels
 print("Authenticated Cockpit system-bus, session-control, and terminal checks passed.")
