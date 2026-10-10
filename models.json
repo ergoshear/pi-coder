@@ -6,8 +6,8 @@
       "apiKey": "olla",
       "models": [
         {
-          "id": "llama3",
-          "name": "Llama 3 (Olla)",
+          "id": "openai-gpt-20b",
+          "name": "OpenAI GPT 20B (Olla)",
           "reasoning": false,
           "input": ["text"],
           "contextWindow": 8192,

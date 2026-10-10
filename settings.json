@@ -1,6 +1,6 @@
 {
   "defaultProvider": "olla",
-  "defaultModel": "llama3",
+  "defaultModel": "openai-gpt-20b",
   "defaultThinkingLevel": "off",
   "compaction": {
     "reserveTokens": 2048,
