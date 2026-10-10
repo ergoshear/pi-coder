@@ -7,8 +7,18 @@ RUN dnf update -y && \
         npm \
         git \
         curl \
-        ca-certificates && \
+        ca-certificates \
+        cockpit \
+        openssh-server \
+        sudo \
+        supervisor && \
     dnf clean all
+
+RUN useradd --create-home --shell /bin/bash pi && \
+    install -d -o pi -g pi /workspace && \
+    printf 'pi ALL=(ALL) NOPASSWD: ALL\n' > /etc/sudoers.d/pi && \
+    chmod 0440 /etc/sudoers.d/pi && \
+    visudo --check
 
 # Set workspace directory for the agent
 WORKDIR /workspace
@@ -16,5 +26,10 @@ WORKDIR /workspace
 # Install Pi Coding Agent globally
 RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent
 
-# Default entrypoint for Pi agent
-ENTRYPOINT ["pi"]
+COPY cockpit.conf /etc/cockpit/cockpit.conf
+COPY supervisord.conf /etc/supervisord.conf
+COPY entrypoint.sh /usr/local/bin/pi-coder-entrypoint
+RUN chmod 0755 /usr/local/bin/pi-coder-entrypoint
+
+EXPOSE 9090
+ENTRYPOINT ["/usr/local/bin/pi-coder-entrypoint"]
