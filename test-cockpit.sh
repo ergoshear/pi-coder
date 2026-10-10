@@ -49,7 +49,12 @@ curl --fail --silent --show-error \
     --header 'Origin: https://pi.ergoshear.dev' \
     --header 'X-Forwarded-Proto: https' \
     "$base_url/cockpit/login" |
-    python3 -c 'import json, sys; assert json.load(sys.stdin)["user"] == "pi"'
+    python3 -c '
+import json
+import sys
+response = json.load(sys.stdin)
+assert isinstance(response["csrf-token"], str) and response["csrf-token"]
+'
 [[ "$(docker exec --user pi "$container" sudo -n id -u)" == 0 ]]
 docker exec --user pi "$container" pi --version
 docker exec "$container" python3 -c '
