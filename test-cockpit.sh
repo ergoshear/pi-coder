@@ -55,6 +55,7 @@ import sys
 response = json.load(sys.stdin)
 assert isinstance(response["csrf-token"], str) and response["csrf-token"]
 '
+python3 "$(dirname "$0")/test-session.py" "$base_url" "$temporary_dir/cookies"
 [[ "$(curl --silent --output /dev/null --write-out '%{http_code}' \
     --user pi:incorrect-password \
     --header 'Host: pi.ergoshear.dev' \
