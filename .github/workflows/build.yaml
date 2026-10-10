@@ -50,8 +50,15 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          load: ${{ github.event_name == 'pull_request' }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Test Cockpit login and passwordless sudo
+        if: github.event_name == 'pull_request'
+        env:
+          IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+        run: bash test-cockpit.sh "$IMAGE"
