@@ -27,7 +27,7 @@ with closing(websocket.create_connection(
     connection.send('\n{"command":"init","version":1}')
     connection.send("\n" + json.dumps({
         "command": "open", "channel": "system-bus",
-        "payload": "dbus-json3", "bus": "system", "name": "org.freedesktop.systemd1",
+        "payload": "dbus-json3", "bus": "system", "name": "org.freedesktop.DBus",
     }))
     connection.send("\n" + json.dumps({
         "command": "open", "channel": "session",
