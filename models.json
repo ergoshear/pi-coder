@@ -6,8 +6,8 @@
       "apiKey": "olla",
       "models": [
         {
-          "id": "/models/gpt-oss-20b-MXFP4.gguf",
-          "name": "GPT-OSS 20B (Olla)",
+          "id": "qwen3-coder-next",
+          "name": "Qwen3 Coder Next (Olla)",
           "reasoning": false,
           "input": ["text"],
           "contextWindow": 65536,

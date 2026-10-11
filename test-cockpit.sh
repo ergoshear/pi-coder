@@ -85,7 +85,7 @@ const settings = JSON.parse(fs.readFileSync(path.join(agentDirectory, "settings.
 assert.equal(models.providers.olla.baseUrl, "https://olla.ergoshear.dev/olla/openai/v1");
 assert.equal(models.providers.olla.api, "openai-completions");
 assert.equal(settings.defaultProvider, "olla");
-assert.equal(settings.defaultModel, "/models/gpt-oss-20b-MXFP4.gguf");
+assert.equal(settings.defaultModel, "qwen3-coder-next");
 const model = models.providers.olla.models.find(model => model.id === settings.defaultModel);
 assert.ok(model);
 assert.equal(model.contextWindow, 65536);
