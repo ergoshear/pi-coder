@@ -49,7 +49,7 @@ for both `pi` and root. New sessions default to provider `olla`, model
 `https://olla.ergoshear.dev/olla/openai/v1` and a placeholder API key. Check
 available model IDs at `https://olla.ergoshear.dev/olla/openai/v1/models`;
 the base URL itself is not an API route. Edit these files to select another
-Olla model or change the endpoint. The model entry assumes an 8192-token
+Olla model or change the endpoint. The model entry assumes a 65,536-token
 context window with 2048 output tokens; adjust these limits to match the model
 and context configured on your backends. Coding-agent tool use requires a
 model/backend that supports tool calls.

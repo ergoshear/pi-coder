@@ -10,7 +10,7 @@
           "name": "GPT-OSS 20B (Olla)",
           "reasoning": false,
           "input": ["text"],
-          "contextWindow": 8192,
+          "contextWindow": 65536,
           "maxTokens": 2048,
           "cost": {
             "input": 0,
